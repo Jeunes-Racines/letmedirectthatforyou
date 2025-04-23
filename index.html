@@ -513,7 +513,7 @@
               body: JSON.stringify(data)
             });
             
-            if ((!response.ok) {
+            if (!response.ok) {
               const errorText = await response.text();
               console.warn("POST failed with status:", response.status, "Response:", errorText);
               await fallbackBeacon(`post-failed-${response.status}`, pos);

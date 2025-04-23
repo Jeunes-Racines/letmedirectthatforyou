@@ -88,12 +88,12 @@
       font-size: 2.5rem;
       margin-bottom: 1rem;
       font-weight: 600;
-      display: flex;
-      gap: 0.6rem;
+      display: inline-flex; /* You want inline-flex for the icon to align with text */
+      gap: 0.5rem;
       align-items: center;
       justify-content: center;
     }
-
+    
     .logo {
       max-width: 150px;
       height: auto;
@@ -213,12 +213,6 @@
       color: var(--button-text);
     }
 
-  .title {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .title-icon {
   width: 1.5rem;
   height: 1.5rem;
@@ -246,7 +240,7 @@
 
   <div class="title" id="title">
   Let Me Direct That For You
-  <img src="lock-icon.svg" alt="Secure Icon" class="title-icon" />
+  <img src="lock-icon.svg" alt="Lock Icon" class="title-icon" width="24" height="24" />
 </div>
 
   <p id="description">

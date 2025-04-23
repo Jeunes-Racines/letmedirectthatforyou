@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Let Me Direct That For You</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 16px;
+      max-width: 500px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .footer {
+      margin-top: 60px;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>Let Me Direct That For You</h1>
+  <p>
+    Please allow location access to calculate directions. This tool will automatically open Google Maps with a route from your current location.
+  </p>
+  <button onclick="redirectToGoogleMaps()">Show Directions</button>
+  <div class="loading" id="loading-text">⏳ Detecting location and opening Google Maps...</div>
+
+  <div class="footer">This may take a few seconds.</div>
+
+  <script>
+    // Predefined destination: White House coordinates
+    const destinationLat = 38.897957;
+    const destinationLon = -77.036560;
+
+    async function redirectToGoogleMaps() {
+      document.getElementById("loading-text").style.display = "block";
+
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const userLat = position.coords.latitude;
+          const userLon = position.coords.longitude;
+
+          // Build the Google Maps direction URL
+          const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${destinationLat},${destinationLon}&travelmode=driving`;
+
+          // Redirect to Google Maps
+          window.location.href = mapsUrl;
+        },
+        error => {
+          alert("Unable to retrieve your location.");
+          document.getElementById("loading-text").style.display = "none";
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+  </script>
+</body>
+</html>

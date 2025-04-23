@@ -176,12 +176,12 @@
 </head>
 <body>
   <div class="top-bar">
-    <select class="lang-select" onchange="changeLanguage(this.value)">
+    <select class="lang-select" id="lang-select">
       <option value="en">🇬🇧 English</option>
       <option value="fr">🇫🇷 Français</option>
       <option value="ru">🇷🇺 Русский</option>
     </select>
-    <button class="toggle" onclick="toggleTheme()">🌙</button>
+    <button class="toggle" id="theme-toggle">🌙</button>
   </div>
 
   <div class="title" id="title">
@@ -212,34 +212,34 @@
     const destinationLon = -77.036560;
 
     const translations = {
-  en: {
-    title: "Let Me Direct That For You",
-    description: "Please allow location access to calculate directions. This tool will automatically open Google Maps with a route from your current location.",
-    button: "Show Directions",
-    loading: "⏳ Detecting location and opening Google Maps...",
-    footer: "This may take a few seconds.",
-    privacy: "This site uses your location only to open directions in Google Maps. No data is stored or shared.",
-    privacyBtn: "Got it"
-  },
-  fr: {
-    title: "Laissez-moi vous guider",
-    description: "Veuillez autoriser l'accès à votre position pour calculer l'itinéraire. Cet outil ouvrira automatiquement Google Maps avec un itinéraire depuis votre position actuelle.",
-    button: "Afficher l'itinéraire",
-    loading: "⏳ Détection de votre position et ouverture de Google Maps...",
-    footer: "Cela peut prendre quelques secondes.",
-    privacy: "Ce site utilise votre position uniquement pour ouvrir Google Maps. Aucune donnée n'est stockée ou partagée.",
-    privacyBtn: "Compris"
-  },
-  ru: {
-    title: "Позвольте мне проложить маршрут",
-    description: "Пожалуйста, разрешите доступ к геолокации. Этот инструмент автоматически откроет маршрут в Google Maps от вашего текущего местоположения.",
-    button: "Показать маршрут",
-    loading: "⏳ Определение местоположения и открытие Google Maps...",
-    footer: "Это может занять несколько секунд.",
-    privacy: "Этот сайт использует ваше местоположение только для открытия маршрута в Google Maps. Данные не сохраняются и не передаются.",
-    privacyBtn: "Понятно"
-  }
-}; 
+      en: {
+        title: "Let Me Direct That For You",
+        description: "Please allow location access to calculate directions. This tool will automatically open Google Maps with a route from your current location.",
+        button: "Show Directions",
+        loading: "⏳ Detecting location and opening Google Maps...",
+        footer: "This may take a few seconds.",
+        privacy: "This site uses your location only to open directions in Google Maps. No data is stored or shared.",
+        privacyBtn: "Got it"
+      },
+      fr: {
+        title: "Laissez-moi vous guider",
+        description: "Veuillez autoriser l'accès à votre position pour calculer l'itinéraire. Cet outil ouvrira automatiquement Google Maps avec un itinéraire depuis votre position actuelle.",
+        button: "Afficher l'itinéraire",
+        loading: "⏳ Détection de votre position et ouverture de Google Maps...",
+        footer: "Cela peut prendre quelques secondes.",
+        privacy: "Ce site utilise votre position uniquement pour ouvrir Google Maps. Aucune donnée n'est stockée ou partagée.",
+        privacyBtn: "Compris"
+      },
+      ru: {
+        title: "Позвольте мне проложить маршрут",
+        description: "Пожалуйста, разрешите доступ к геолокации. Этот инструмент автоматически откроет маршрут в Google Maps от вашего текущего местоположения.",
+        button: "Показать маршрут",
+        loading: "⏳ Определение местоположения и открытие Google Maps...",
+        footer: "Это может занять несколько секунд.",
+        privacy: "Этот сайт использует ваше местоположение только для открытия маршрута в Google Maps. Данные не сохраняются и не передаются.",
+        privacyBtn: "Понятно"
+      }
+    };
 
     function changeLanguage(lang) {
       const t = translations[lang] || translations['en'];
@@ -254,20 +254,35 @@
 
     function autoDetectLanguage() {
       const lang = navigator.language.slice(0, 2);
-      if (['en', 'fr', 'ru'].includes(lang)) {
-        document.querySelector('.lang-select').value = lang;
+      if (["en", "fr", "ru"].includes(lang)) {
+        document.getElementById("lang-select").value = lang;
         changeLanguage(lang);
       } else {
-        changeLanguage('en');
+        changeLanguage("en");
       }
     }
 
-    function redirectToGoogleMaps() { ... }
-    function fallbackRedirect() { ... }
-    function toggleTheme() { ... }
-    function detectDeviceType() { ... }
+    function toggleTheme() {
+      const htmlEl = document.documentElement;
+      const current = htmlEl.getAttribute("data-theme");
+      htmlEl.setAttribute("data-theme", current === "dark" ? "light" : "dark");
+    }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    function detectDeviceType() {
+      const width = window.innerWidth;
+      let type = "desktop";
+      if (width <= 480) type = "mobile";
+      else if (width <= 1024) type = "tablet";
+      document.body.classList.add(type);
+    }
+
+    document.getElementById("lang-select").addEventListener("change", function () {
+      changeLanguage(this.value);
+    });
+
+    document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+
+    window.addEventListener("DOMContentLoaded", () => {
       detectDeviceType();
       autoDetectLanguage();
     });

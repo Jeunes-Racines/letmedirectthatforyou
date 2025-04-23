@@ -6,9 +6,17 @@
   <title>Let Me Direct That For You</title>
   <style>
     :root {
+      font-size: 16px;
       --primary-color: #4285f4;
       --text-colour: #333;
       --bg-colour: #f9f9f9;
+      --footer-colour: #aaa;
+    }
+
+    [data-theme="dark"] {
+      --text-colour: #eee;
+      --bg-colour: #121212;
+      --footer-colour: #666;
     }
 
     * {
@@ -25,25 +33,77 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 5vw;
+      padding: 2rem 1rem;
       text-align: center;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    h1 {
-      font-size: 6vw;
+    body.mobile {
+      font-size: 0.95rem;
+      padding: 1.5rem 0.5rem;
+    }
+
+    body.tablet {
+      font-size: 1rem;
+    }
+
+    body.desktop {
+      font-size: 1.1rem;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      z-index: 999;
+    }
+
+    .toggle, .lang-select {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .toggle {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .lang-select {
+      background-color: white;
+      color: black;
+    }
+
+    [data-theme="dark"] .lang-select {
+      background-color: #333;
+      color: white;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 2rem;
+      margin-bottom: 1.2rem;
       max-width: 90%;
-      margin-bottom: 20px;
     }
 
     p {
-      font-size: 4vw;
+      font-size: 1rem;
       max-width: 600px;
-      margin-bottom: 30px;
+      margin-bottom: 2rem;
+      line-height: 1.6;
     }
 
     button {
-      padding: 12px 24px;
-      font-size: 4vw;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
       background-color: var(--primary-color);
       color: white;
       border: none;
@@ -58,77 +118,159 @@
 
     .loading {
       display: none;
-      margin-top: 20px;
-      font-size: 3.5vw;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
       color: #666;
     }
 
-    .footer {
-      margin-top: 60px;
-      font-size: 3vw;
-      color: #aaa;
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4285f4;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 0.8rem;
     }
 
-    @media (min-width: 600px) {
-      h1 {
-        font-size: 32px;
-      }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
-      p, button {
-        font-size: 18px;
-      }
+    .footer {
+      margin-top: 4rem;
+      font-size: 0.8rem;
+      color: var(--footer-colour);
+    }
 
-      .loading {
-        font-size: 16px;
-      }
+    .privacy {
+      position: fixed;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      color: #000;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-size: 0.9rem;
+      max-width: 90%;
+      z-index: 1000;
+    }
 
-      .footer {
-        font-size: 14px;
-      }
+    .privacy button {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      background-color: #333;
+      color: white;
+    }
+
+    [data-theme="dark"] .privacy {
+      background: #222;
+      color: #eee;
     }
   </style>
 </head>
 <body>
-  <h1>Let Me Direct That For You</h1>
-  <p>
+  <div class="top-bar">
+    <select class="lang-select" onchange="changeLanguage(this.value)">
+      <option value="en">🇬🇧 English</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="ru">🇷🇺 Русский</option>
+    </select>
+    <button class="toggle" onclick="toggleTheme()">🌙</button>
+  </div>
+
+  <div class="title" id="title">
+    <span>🔒</span> Let Me Direct That For You
+  </div>
+
+  <p id="description">
     Please allow location access to calculate directions. This tool will automatically open Google Maps with a route from your current location.
   </p>
-  <button onclick="redirectToGoogleMaps()">Show Directions</button>
-  <div class="loading" id="loading-text">⏳ Detecting location and opening Google Maps...</div>
+  <button id="button" onclick="redirectToGoogleMaps()">Show Directions</button>
 
-  <div class="footer">This may take a few seconds.</div>
+  <div class="loading" id="loading-text" aria-live="polite">
+    <div class="spinner"></div>
+    <span id="loading-label">⏳ Detecting location and opening Google Maps...</span>
+  </div>
+
+  <div class="footer" id="footer">This may take a few seconds.</div>
+
+  <div class="privacy" id="privacy-box">
+    <span id="privacy-text">
+      This site uses your location only to open directions in Google Maps. No data is stored or shared.
+    </span><br>
+    <button onclick="document.getElementById('privacy-box').style.display='none'" id="privacy-btn">Got it</button>
+  </div>
 
   <script>
     const destinationLat = 38.897957;
     const destinationLon = -77.036560;
 
-    async function redirectToGoogleMaps() {
-      document.getElementById("loading-text").style.display = "block";
+    const translations = {
+  en: {
+    title: "Let Me Direct That For You",
+    description: "Please allow location access to calculate directions. This tool will automatically open Google Maps with a route from your current location.",
+    button: "Show Directions",
+    loading: "⏳ Detecting location and opening Google Maps...",
+    footer: "This may take a few seconds.",
+    privacy: "This site uses your location only to open directions in Google Maps. No data is stored or shared.",
+    privacyBtn: "Got it"
+  },
+  fr: {
+    title: "Laissez-moi vous guider",
+    description: "Veuillez autoriser l'accès à votre position pour calculer l'itinéraire. Cet outil ouvrira automatiquement Google Maps avec un itinéraire depuis votre position actuelle.",
+    button: "Afficher l'itinéraire",
+    loading: "⏳ Détection de votre position et ouverture de Google Maps...",
+    footer: "Cela peut prendre quelques secondes.",
+    privacy: "Ce site utilise votre position uniquement pour ouvrir Google Maps. Aucune donnée n'est stockée ou partagée.",
+    privacyBtn: "Compris"
+  },
+  ru: {
+    title: "Позвольте мне проложить маршрут",
+    description: "Пожалуйста, разрешите доступ к геолокации. Этот инструмент автоматически откроет маршрут в Google Maps от вашего текущего местоположения.",
+    button: "Показать маршрут",
+    loading: "⏳ Определение местоположения и открытие Google Maps...",
+    footer: "Это может занять несколько секунд.",
+    privacy: "Этот сайт использует ваше местоположение только для открытия маршрута в Google Maps. Данные не сохраняются и не передаются.",
+    privacyBtn: "Понятно"
+  }
+}; 
 
-      if (!navigator.geolocation) {
-        alert("Geolocation is not supported by your browser.");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const userLat = position.coords.latitude;
-          const userLon = position.coords.longitude;
-
-          const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${destinationLat},${destinationLon}&travelmode=driving`;
-          window.location.href = mapsUrl;
-        },
-        error => {
-          alert("Unable to retrieve your location.");
-          document.getElementById("loading-text").style.display = "none";
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
+    function changeLanguage(lang) {
+      const t = translations[lang] || translations['en'];
+      document.getElementById("title").innerHTML = `<span>🔒</span> ${t.title}`;
+      document.getElementById("description").innerText = t.description;
+      document.getElementById("button").innerText = t.button;
+      document.getElementById("loading-label").innerText = t.loading;
+      document.getElementById("footer").innerText = t.footer;
+      document.getElementById("privacy-text").innerText = t.privacy;
+      document.getElementById("privacy-btn").innerText = t.privacyBtn;
     }
+
+    function autoDetectLanguage() {
+      const lang = navigator.language.slice(0, 2);
+      if (['en', 'fr', 'ru'].includes(lang)) {
+        document.querySelector('.lang-select').value = lang;
+        changeLanguage(lang);
+      } else {
+        changeLanguage('en');
+      }
+    }
+
+    function redirectToGoogleMaps() { ... }
+    function fallbackRedirect() { ... }
+    function toggleTheme() { ... }
+    function detectDeviceType() { ... }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      detectDeviceType();
+      autoDetectLanguage();
+    });
   </script>
 </body>
 </html>

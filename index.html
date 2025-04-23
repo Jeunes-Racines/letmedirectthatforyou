@@ -212,7 +212,25 @@
       background-color: var(--button-bg);
       color: var(--button-text);
     }
+
+  .title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: middle;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.15));
+}
+
+[data-theme="dark"] .title-icon {
+  filter: brightness(0.9) contrast(1.2);
+}
   </style>
+
 </head>
 <body>
   <div class="top-bar">
@@ -227,8 +245,9 @@
   <img src="lmdtfylogo.svg" alt="Let Me Direct That For You Logo" class="logo">
 
   <div class="title" id="title">
-    <span>🔒</span> Let Me Direct That For You
-  </div>
+  Let Me Direct That For You
+  <img src="lock-icon.svg" alt="Secure Icon" class="title-icon" />
+</div>
 
   <p id="description">
     Please allow location access to calculate directions. This tool will automatically open Google Maps with a route from your current location.

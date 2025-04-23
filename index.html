@@ -316,7 +316,7 @@
 
     function changeLanguage(lang) {
       const t = translations[lang] || translations['en'];
-      document.getElementById("title").innerHTML = `<span>🔒</span> ${t.title}`;
+      document.querySelector("#title").childNodes[0].nodeValue = `${t.title} `;
       document.getElementById("description").innerText = t.description;
       document.getElementById("button").innerText = t.button;
       document.getElementById("loading-label").innerText = t.loading;

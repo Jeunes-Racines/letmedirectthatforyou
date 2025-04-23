@@ -5,57 +5,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Let Me Direct That For You</title>
   <style>
+    :root {
+      --primary-color: #4285f4;
+      --text-colour: #333;
+      --bg-colour: #f9f9f9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
+      background-color: var(--bg-colour);
+      color: var(--text-colour);
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 20px;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 5vw;
+      text-align: center;
     }
 
     h1 {
-      font-size: 28px;
+      font-size: 6vw;
+      max-width: 90%;
       margin-bottom: 20px;
     }
 
     p {
-      font-size: 16px;
-      max-width: 500px;
-      text-align: center;
+      font-size: 4vw;
+      max-width: 600px;
       margin-bottom: 30px;
     }
 
     button {
       padding: 12px 24px;
-      font-size: 16px;
-      background-color: #4285f4;
+      font-size: 4vw;
+      background-color: var(--primary-color);
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #3367d6;
     }
 
     .loading {
       display: none;
       margin-top: 20px;
-      font-size: 14px;
+      font-size: 3.5vw;
       color: #666;
     }
 
     .footer {
       margin-top: 60px;
-      font-size: 12px;
+      font-size: 3vw;
       color: #aaa;
+    }
+
+    @media (min-width: 600px) {
+      h1 {
+        font-size: 32px;
+      }
+
+      p, button {
+        font-size: 18px;
+      }
+
+      .loading {
+        font-size: 16px;
+      }
+
+      .footer {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
   <h1>Let Me Direct That For You</h1>
   <p>
-    Please allow location access to calculate directions. This tool will automatically open up Google Maps with a route from your current location.
+    Please allow location access to calculate directions. This tool will automatically open Google Maps with a route from your current location.
   </p>
   <button onclick="redirectToGoogleMaps()">Show Directions</button>
   <div class="loading" id="loading-text">⏳ Detecting location and opening Google Maps...</div>
@@ -63,7 +99,6 @@
   <div class="footer">This may take a few seconds.</div>
 
   <script>
-    // Predefined destination: White House coordinates
     const destinationLat = 38.897957;
     const destinationLon = -77.036560;
 
@@ -80,10 +115,7 @@
           const userLat = position.coords.latitude;
           const userLon = position.coords.longitude;
 
-          // Build the Google Maps direction URL
           const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${destinationLat},${destinationLon}&travelmode=driving`;
-
-          // Redirect to Google Maps
           window.location.href = mapsUrl;
         },
         error => {

@@ -10,13 +10,23 @@
       --primary-color: #4285f4;
       --text-colour: #333;
       --bg-colour: #f9f9f9;
+      --gradient-bg: linear-gradient(to bottom right, #eaf2ff, #ffffff);
       --footer-colour: #aaa;
+      --button-bg: #4285f4;
+      --button-text: white;
+      --card-bg: white;
+      --card-text: black;
     }
 
     [data-theme="dark"] {
-      --text-colour: #eee;
+      --text-colour: #f1f1f1;
       --bg-colour: #121212;
-      --footer-colour: #666;
+      --gradient-bg: linear-gradient(to bottom right, #1e1e1e, #2a2a2a);
+      --footer-colour: #888;
+      --button-bg: #f4f4f4;
+      --button-text: #121212;
+      --card-bg: #222;
+      --card-text: #eee;
     }
 
     * {
@@ -32,27 +42,14 @@
       margin: 0;
       padding: 2rem;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg-colour);
+      background: var(--gradient-bg);
       color: var(--text-colour);
       text-align: center;
       transition: background-color 0.3s ease, color 0.3s ease;
-      background-image: linear-gradient(to right, #f0f4ff, #ffffff);
-    }
-
-    body.mobile {
-      font-size: 0.95rem;
-      padding: 1.5rem 0.5rem;
-    }
-
-    body.tablet {
-      font-size: 1rem;
-    }
-
-    body.desktop {
-      font-size: 1.125rem;
-      max-width: 600px;
-      margin-bottom: 2rem;
-      line-height: 1.6;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      font-smooth: always;
+      -webkit-font-smoothing: antialiased;
     }
 
     .top-bar {
@@ -73,8 +70,8 @@
     }
 
     .toggle {
-      background-color: var(--primary-color);
-      color: white;
+      background-color: var(--button-bg);
+      color: var(--button-text);
     }
 
     .lang-select {
@@ -107,8 +104,8 @@
     button {
       padding: 0.75rem 1.75rem;
       font-size: 1rem;
-      background-color: var(--primary-color);
-      color: white;
+      background-color: var(--button-bg);
+      color: var(--button-text);
       border: none;
       border-radius: 8px;
       cursor: pointer;
@@ -156,8 +153,8 @@
       bottom: 1rem;
       left: 50%;
       transform: translateX(-50%);
-      background: #fff;
-      color: #000;
+      background: var(--card-bg);
+      color: var(--card-text);
       padding: 1rem 1.5rem;
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -171,11 +168,6 @@
       font-size: 0.9rem;
       background-color: #333;
       color: white;
-    }
-
-    [data-theme="dark"] .privacy {
-      background: #222;
-      color: #eee;
     }
   </style>
 </head>
@@ -274,13 +266,9 @@
 
       if (current === "dark") {
         htmlEl.setAttribute("data-theme", "light");
-        themeToggleBtn.style.backgroundColor = "#4285f4";
-        themeToggleBtn.style.color = "white";
         themeToggleBtn.textContent = "🌙";
       } else {
         htmlEl.setAttribute("data-theme", "dark");
-        themeToggleBtn.style.backgroundColor = "#f4f4f4";
-        themeToggleBtn.style.color = "#121212";
         themeToggleBtn.textContent = "☀️";
       }
     }

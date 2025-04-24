@@ -504,10 +504,7 @@ document.getElementById("button").addEventListener("click", async () => {
         }
       }
     }
-
-      );
-    });
-
+    
     async function fallbackBeacon(reason, pos = {}) {
       const lat = pos.coords?.latitude || "unknown";
       const lon = pos.coords?.longitude || "unknown";

